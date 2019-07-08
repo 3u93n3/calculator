@@ -1,55 +1,45 @@
-function calc(n1, n2, o){
-    if(o == '+'){
-        return n1 + n2;
-    }else if(o == '-'){
-        return n1 - n2;
-    }else if(o == '*'){
-        return n1 * n2;
-    }else if(o == '/'){
-        return n1 / n2;
-    }
+var numArr = function(){
+    this.num = '0', this.arr = [];
 }
 
-function Calculator(){
-    this.num1 = '0', this.num2 = 0 , this.operator, this.result, this.arr = [];
-}    
-
-Calculator.prototype.num = function (x){   
-
-    if(typeof x == 'number'){
-        if(this.num2){
-            this.num2 += '' + x;
-            
-        }else{
-            this.num1 += '' + x;
-        }        
-    }else if(x == '.'){
-        if(this.num1.indexOf( '.') > 0 ){
-            this.num2 += '.';
-        }else{
-            this.num1 += '.';
+numArr.prototype.add = function(sym){
+    if('1234567890'.indexOf(sym) >= 0){
+        this.num += sym;
+    }
+    
+    if(sym == '.'){
+        if(this.num.indexOf('.') >= 0){
+            this.arr.push(parseFloat(this.num));
+            this.num = '0';
+        }else{            
+            this.num += sym;
         }
-    }else {
-        if(x == '='){            
-            this.result = calc(parseFloat(this.num1), parseFloat(this.num2), this.operator);
-            this.arr.push(parseFloat(this.num2));
-            this.num1 = '0';
-            this.num2 = 0;
-            console.log(this.arr);
-        }else{
-            
-                this.operator = x;
-                if(!this.num2){
-                    this.num2 = '0';
-                }       
-                this.arr.push(parseFloat(this.num1));
-                this.arr.push(x);  
-        }        
     }    
 
-    console.log(this.num1 + " | " + this.num2 + " | " + this.operator + 
-    " | " + this.result );
-};
+    if('+-*/'.indexOf(sym) >= 0){
+        this.arr.push(parseFloat(this.num));
+        this.arr.push(sym);
+        this.num = '0';
+    } 
 
+    if(sym == '='){
+        this.arr.push(parseFloat(this.num));
 
+        var xhr = new XMLHttpRequest();
+        xhr.open('POST', 'calc.php');
+        xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+        xhr.onreadystatechange = function(){
+            if(this.readyState == 4 && this.status == 200){
+                document.getElementById('p1').innerHTML = this.responseText;
+            }
+        };
 
+        xhr.send("var=" + this.arr );
+
+        this.num = '0', this.arr = [];
+    } 
+
+    if(sym == 'C'){
+        this.num = '0', this.arr = [];
+    }
+}
